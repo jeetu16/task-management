@@ -4,7 +4,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { ListTaskDto } from './dto/search-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './task.model';
+import { Task } from './task.entity';
 
 @Controller('tasks')
 export class TasksController {
@@ -14,7 +14,7 @@ export class TasksController {
     @Get()
     getTasks(
         @Query() listTaskDto : ListTaskDto 
-    ) : Task[] {
+    ) : Promise<Task[]> {
        return this.taskService.getTasks(listTaskDto);
     }
 
@@ -40,15 +40,14 @@ export class TasksController {
             }
         }
     })
-    createTask(@Body() createTaskDto : CreateTaskDto) : Task {
+    createTask(@Body() createTaskDto : CreateTaskDto) : Promise<Task> {
         return this.taskService.createTask(createTaskDto);
     }
 
     @Get('/:id')
-    getTask(
+    getTaskById(
         @Param('id') id : string
-
-    ) : Task {
+    ) : Promise<Task> {
         return this.taskService.getTaskById(id);
     }
 
@@ -82,12 +81,12 @@ export class TasksController {
     updateTask(
         @Param('id') id : string,
         @Body() updateTask : UpdateTaskDto
-    ) : Task {
+    ) : Promise<Task> {
         return this.taskService.updateTask(id, updateTask);
     }
 
     @Delete('/:id')
-    deleteTask(@Param('id') id : string) {
+    deleteTask(@Param('id') id : string) : Promise<void> {
         return this.taskService.deleteTask(id);
     }
 }
