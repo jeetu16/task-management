@@ -2,8 +2,8 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { SignUpDto } from './dto/signup.dto';
 import { AuthService } from './auth.service';
 import { ApiBody } from '@nestjs/swagger';
-import { User } from './user.entity';
 import { LoginDto } from './dto/login.dto';
+import { LoginResponse } from 'src/common/common-interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +47,7 @@ export class AuthController {
             }
         }
     })
-    login(@Body() loginDto : LoginDto) : Promise<string> {
+    login(@Body() loginDto : LoginDto) : Promise<LoginResponse> {
         return this.authService.login(loginDto);
     }
 }

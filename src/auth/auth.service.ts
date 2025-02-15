@@ -5,12 +5,15 @@ import * as argon2 from 'argon2'
 import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload, LoginResponse } from 'src/common/common-interfaces';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
-        private userRepository : Repository<User>
+        private userRepository : Repository<User>,
+        private jwtService : JwtService
     ) {}
 
     async signup(signUpDto : SignUpDto) : Promise<void> {
@@ -30,15 +33,18 @@ export class AuthService {
         }
     }
 
-    async login(loginDto : LoginDto) : Promise<string> {
+    async login(loginDto : LoginDto) : Promise<LoginResponse> {
+        const { username, password } = loginDto;
         const user = await this.userRepository.findOne({
             where : {
-                username: loginDto?.username
+                username
             }
         })
     
         if(user && await argon2.verify(user.password, loginDto.password)) {
-            return "Success"
+            const payload : JwtPayload = { username }
+            const accessToken : string = await this.jwtService.sign(payload); 
+            return { accessToken }
         } else {
             throw new BadRequestException("Invalid email or password");
         }
